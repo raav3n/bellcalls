@@ -3,7 +3,7 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 
 ### Updates
 First Typescript and React project </br>
-Working on getting user input to push car details (model, plate, color) to firebase database (firestore)
+Working on authorization, setup login/signup, and dispaly appropriate cars per user
 
 ### Next steps
 * UI Changes
