@@ -11,7 +11,7 @@ const Cars : React.FC<IProps> = ({ cars }) =>
         {
             return ( 
                 <>
-                    <input type="checkbox" key={`car${count}_in`} /> <label key={`car${count}_lb`} > Car {count++} : <strong key={`car${count}_sr`}>Model</strong> - {c.model}  <strong key={`car${count}_sr2`}>Plate</strong> - {c.plate} </label> <br/>
+                    <div className='p2' key={`car${count}_div`}><input type="checkbox" key={`car${count}_in`}  /> <label key={`car${count}_lb`} > Car {count++} : <strong key={`car${count}_sr`}>Model</strong> - {c.model}  <strong key={`car${count}_sr2`}>Plate</strong> - {c.plate} </label></div>
                 </>
             )
         })
@@ -19,10 +19,12 @@ const Cars : React.FC<IProps> = ({ cars }) =>
 
     return ( 
         <>
-            <Card style={{width:'40rem'}} > 
-                <Card.Body>  
-                    <h2 className='text-center mb-4'>Cars</h2>
-                    { carList() }
+            <Card style={{width:'30rem'}} > 
+                <Card.Body className='m-auto'>  
+                    <h2 className='mb-3 text-center'>Cars</h2>
+                    <div id="carList" className='"d-flex flex-column mb-3'>
+                        { carList() }
+                    </div>
                 </Card.Body> 
             </Card>
         </>

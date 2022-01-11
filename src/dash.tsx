@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Cars  from "./Cars"
 import storage  from "./firebase"
 import firebase from 'firebase/app';
-import { Card, Button, Form, Alert } from 'react-bootstrap';
-import { isConstructorDeclaration } from 'typescript';
+import { Card, Button, Form } from 'react-bootstrap';
 
 export interface IState
 {
@@ -69,10 +68,10 @@ const Dash : React.FC= () =>
             
             < Cars cars = { cars } />
 
-            { !display && <div className='text-center mt-2' onClick={_toggleDisplay}>Want to add a Car?</div> }
-            { display && <Card style={{width:'20rem'}} className='mt-3'>
+            { !display && <div className='mt-2' onClick={_toggleDisplay}>Want to add a Car?</div> }
+            { display && <Card style={{width:'30rem'}} className='mt-3'>
 
-                <Card.Body className='align-self-center'>
+                <Card.Body className='align-self-center' >
                     <div className="d-grid gap-2">
 
                         <h2 className='text-center mb-4'>Add Car</h2>

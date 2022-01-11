@@ -3,11 +3,11 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 
 ### Updates
 First Typescript and React project </br>
-Working on authorization, setup login/signup, and dispaly appropriate cars per user
+Sign up is complete, need to setup login, and get some user input on registration (address, cars)
 
 ### Next steps
 * UI Changes
-* Sign Up/Login
+* Login
 * Implement authorization for firebase access per user 
 * Implement Twillio for automated phone calls 
 * Trackers for car stays per night (as well as be able to reset)

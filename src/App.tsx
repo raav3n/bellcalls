@@ -1,15 +1,14 @@
-import React from 'react';
+import React from 'react'
 import Dash from "./dash"
-import { Container } from "react-bootstrap"
+import Signup from "./Signup"
 
 function App() {
   return (
     <>
-      <Container className='d-flex vh-100' style = {{minHeight: "100vh" }}>
-        <div className='m-auto align-self-center' style={{ maxWidth: "400px" }}>
-          < Dash />
-        </div>
-      </Container>
+      <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}> 
+        {/* < Dash /> */}
+        < Signup /> 
+      </div>
     </>
   )
 }
