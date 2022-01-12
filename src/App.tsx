@@ -1,14 +1,23 @@
 import React from 'react'
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
+
 import Dash from "./dash"
 import Signup from "./Signup"
+import Login from "./Login"
+import PrivateRoute from './PrivateRoute'
 
 function App() {
   return (
     <>
-      <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}> 
-        {/* < Dash /> */}
-        < Signup /> 
-      </div>
+      <Router>
+        <Switch>
+
+          <PrivateRoute exact path="/" component={ Dash } />
+          <Route path="/signup" component={ Signup } />
+          <Route path="/login" component={ Login } />
+
+        </Switch>
+      </Router>
     </>
   )
 }

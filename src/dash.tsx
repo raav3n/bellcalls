@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import Cars  from "./Cars"
 import storage  from "./firebase"
+import { auth } from "./firebase"
 import firebase from 'firebase/app';
-import { Card, Button, Form } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
+import { useHistory } from "react-router-dom"
+import AddCar from "./AddCar"
 
 export interface IState
 {
@@ -14,28 +17,34 @@ export interface IState
     }[]
 }
 
-const home : string = "test"
 
-const Dash : React.FC= () =>
+const Dash : React.FC = () =>
 {
+    const history = useHistory()
+
     const [cars, setCars] = useState<IState["cars"]>([])
     const [display, setDisplay] = useState<boolean>(false)
-    const [loading, setLoading] = useState<boolean>(false)
-
-    const inputModel = useRef<HTMLInputElement>(null);
-    const inputColor = useRef<HTMLInputElement>(null);
-    const inputPlate = useRef<HTMLInputElement>(null);
 
     useEffect(() => 
     {
-        storage.collection(home).onSnapshot((snap : firebase.firestore.QuerySnapshot) => 
+        if(!auth.currentUser?.uid) history.push("/login")
+
+        storage.collection(auth.currentUser!.uid).doc("car1").get().then((doc : firebase.firestore.DocumentSnapshot) =>
         {
-            setCars(snap.docs.map((car :firebase.firestore.DocumentData) => 
-            (
-                {...car.data()}
-            )))
+            if(!doc.exists) setDisplay(true)
+            else
+            {
+                storage.collection(auth.currentUser!.uid).onSnapshot((snap : firebase.firestore.QuerySnapshot) => 
+                {
+                    setCars(snap.docs.map((car :firebase.firestore.DocumentData) => 
+                    (
+                        {...car.data()}
+                    )))
             
+                })
+            }
         })
+        
         
     }, [])
 
@@ -44,61 +53,37 @@ const Dash : React.FC= () =>
         setDisplay(() => !display)
     }
 
-    const addCar = (e : React.FormEvent<HTMLFormElement>) =>
+    const signOut = () =>
     {
-        e.preventDefault()
-        setLoading(true)
-
-        if( inputModel.current != null && inputColor.current != null && inputPlate.current != null)
-        {
-            const docnum : string = "car"+(cars.length+1).toString()
-
-            storage.collection(home).doc(docnum).set({
-                color : inputColor.current.value,
-                model : inputModel.current.value,
-                plate : inputPlate.current.value
-            }).then(() => console.log("done"))
-        }
-
-        setLoading(false)
+        //sign out here
     }
 
     return (
         <>
-            
-            < Cars cars = { cars } />
 
-            { !display && <div className='mt-2' onClick={_toggleDisplay}>Want to add a Car?</div> }
-            { display && <Card style={{width:'30rem'}} className='mt-3'>
+            <div className='float-end me-4'>
+                <Button variant="primary" type='submit' className='mt-3' onClick={signOut}>Sign Out</Button>
+            </div>
 
-                <Card.Body className='align-self-center' >
-                    <div className="d-grid gap-2">
+            <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}>
+                {cars.length > 0 && < Cars cars = { cars } />}
 
-                        <h2 className='text-center mb-4'>Add Car</h2>
+                { !display && <div className='mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Want to add a Car?</div> }
+                { display && <Card style={{minWidth:'25rem'}} className='mt-3'>
 
-                        {/* {error && <Alert variant="danger">{error}</Alert>} */}
+                    <Card.Body className='align-self-center' >
+                        <div className="d-grid gap-2">
 
-                        <Form onSubmit={addCar}>
-                            <Form.Group id="Cmodel">
-                                <Form.Label>Car Model</Form.Label>
-                                <Form.Control type="text" ref={inputModel} required />
-                            </Form.Group>
-                            <Form.Group id="Ccolor">
-                                <Form.Label>Car Color</Form.Label>
-                                <Form.Control type="text" ref={inputColor} required />
-                            </Form.Group>
-                            <Form.Group id="Cplate">
-                                <Form.Label>Car Plate</Form.Label>
-                                <Form.Control type="text" ref={inputPlate} required/>
-                            </Form.Group>
-                            <Button variant="primary" type='submit' disabled={loading} className='w-100 mt-3'>Add Car</Button>
-                        </Form>
+                            <h2 className='text-center mb-4'>Add Car</h2>
+                            
+                            < AddCar cars={ cars } />
 
-                        <div className='text-center mt-2' onClick={_toggleDisplay}>Cancel</div>
+                        {cars.length > 0 && <div className='text-center mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Cancel</div>}
 
-                    </div>
-                </Card.Body>
-            </Card> }
+                        </div>
+                    </Card.Body>
+                </Card> }
+            </div>
         </>
     )
 }
