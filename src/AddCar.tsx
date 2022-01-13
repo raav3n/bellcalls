@@ -2,15 +2,20 @@ import React, { useRef, useState } from "react"
 import storage, { auth } from "./firebase"
 import { Form, Button } from "react-bootstrap"
 import { IState as IProps} from "./dash"
+import firebase from "firebase"
+import EditCar from "./EditCar"
 
-const AddCar : React.FC<IProps> = ({ cars }) =>
+export interface Istate { toggleDisplay : () => void }
+
+const AddCar : React.FC<IProps & Istate > = ({ cars , toggleDisplay }) =>
 {
     const [loading, setLoading] = useState<boolean>(false)
+    const [editMode, setEditMode] = useState<boolean>(false)
     const inputColor = useRef<HTMLInputElement>(null)
     const inputModel = useRef<HTMLInputElement>(null)
     const inputPlate = useRef<HTMLInputElement>(null)
 
-    const addCar = (e : React.FormEvent<HTMLFormElement>) =>
+    const carAddUpdate = (e : React.FormEvent<HTMLFormElement>, document ?: string) =>
     {
         e.preventDefault()
         setLoading(true)
@@ -19,19 +24,25 @@ const AddCar : React.FC<IProps> = ({ cars }) =>
         {
             const docnum : string = "car"+(cars.length+1).toString()
 
-            storage.collection(auth.currentUser!.uid).doc(docnum).set({
+            storage.collection(auth.currentUser!.uid).doc(document).set({
                 color : inputColor.current.value,
                 model : inputModel.current.value,
                 plate : inputPlate.current.value
+            }).catch((e : firebase.FirebaseError) => 
+            {
+                console.log(e.message)
+                
             }).then(() => console.log("done"))
         }
 
         setLoading(false)
+
+        toggleDisplay()
     }
 
     return (
         <>
-        <Form onSubmit={addCar}>
+       { !editMode && <Form onSubmit={ carAddUpdate }>
             <Form.Group id="Cmodel">
                 <Form.Label>Car Model</Form.Label>
                 <Form.Control type="text" ref={inputModel} required />
@@ -44,8 +55,10 @@ const AddCar : React.FC<IProps> = ({ cars }) =>
                 <Form.Label>Car Plate</Form.Label>
                 <Form.Control type="text" ref={inputPlate} required/>
             </Form.Group>
-            <Button variant="primary" type='submit' disabled={loading} className='w-100 mt-3' >Add Car</Button>
-            </Form>
+            <Button variant="primary" type='submit' disabled={loading} className='w-100 mt-3'>Add Car</Button>
+            </Form> }
+
+            {editMode && < EditCar cars = { cars } carUpdate = { carAddUpdate } /> }
         </>
     )
 }

@@ -3,7 +3,7 @@ import Cars  from "./Cars"
 import storage  from "./firebase"
 import { auth } from "./firebase"
 import firebase from 'firebase/app';
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Alert } from 'react-bootstrap';
 import { useHistory } from "react-router-dom"
 import AddCar from "./AddCar"
 
@@ -13,9 +13,12 @@ export interface IState
     {
         model :string,
         color : string,
-        plate ?: string,
+        plate : string,
+        docName : string
     }[]
 }
+
+export 
 
 
 const Dash : React.FC = () =>
@@ -24,6 +27,7 @@ const Dash : React.FC = () =>
 
     const [cars, setCars] = useState<IState["cars"]>([])
     const [display, setDisplay] = useState<boolean>(false)
+    const [signOutPad, setSignOutPad] = useState<React.CSSProperties>({ paddingLeft: window.innerWidth-300 })
 
     useEffect(() => 
     {
@@ -38,14 +42,20 @@ const Dash : React.FC = () =>
                 {
                     setCars(snap.docs.map((car :firebase.firestore.DocumentData) => 
                     (
-                        {...car.data()}
+                        {...car.data(), docName: car.id }
                     )))
             
                 })
             }
         })
+
+        console.log(auth.currentUser?.email)
         
-        
+    }, [display])
+
+    useEffect(() =>
+    {
+        if(window.innerWidth < 400) setSignOutPad({ paddingLeft: window.innerWidth-100 })
     }, [])
 
     const _toggleDisplay = () =>
@@ -55,28 +65,38 @@ const Dash : React.FC = () =>
 
     const signOut = () =>
     {
-        //sign out here
+        auth.signOut().then(() => 
+        {
+            history.push("/login")
+        }).catch((error) => 
+        {
+            console.log("cant sign out bro")
+        });
     }
 
     return (
         <>
 
-            <div className='float-end me-4'>
+            <div className='' style={{ ...signOutPad, whiteSpace:"nowrap", paddingRight:"20px"}}>
                 <Button variant="primary" type='submit' className='mt-3' onClick={signOut}>Sign Out</Button>
             </div>
 
-            <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}>
-                {cars.length > 0 && < Cars cars = { cars } />}
+            <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "90vh"}}>        {/*watch out for minHeight*/}
+                {cars.length > 0 && !display && < Cars cars = { cars } toggleDisplay = {  _toggleDisplay } />} 
+
+                {/* <h2 className='mb-1 text-center'>Cars</h2> */}
 
                 { !display && <div className='mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Want to add a Car?</div> }
-                { display && <Card style={{minWidth:'25rem'}} className='mt-3'>
+                { display && <Card style={{minWidth: window.innerWidth/2}}>
 
                     <Card.Body className='align-self-center' >
                         <div className="d-grid gap-2">
 
                             <h2 className='text-center mb-4'>Add Car</h2>
                             
-                            < AddCar cars={ cars } />
+                            < AddCar cars={ cars } toggleDisplay={ _toggleDisplay } />
+
+                            
 
                         {cars.length > 0 && <div className='text-center mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Cancel</div>}
 
