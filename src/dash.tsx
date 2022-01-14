@@ -14,6 +14,7 @@ export interface IState
         model :string,
         color : string,
         plate : string,
+        calledAlready: number,
         docName : string
     }[]
 }
@@ -29,7 +30,9 @@ const Dash : React.FC = () =>
     const [signOutPad, setSignOutPad] = useState<React.CSSProperties>({ paddingLeft: window.innerWidth-300 })
     const [mode, setMode] = useState<string>("") // edit, delete, null
     const [carSel, setCarSel] = useState<string>("") // document reference name
-    const [delConf, setDelConf] = useState<boolean>(false)
+    const [delConf, setDelConf] = useState<boolean>(false) //for delete popup
+    const [callBlock, setCallBlock] = useState<boolean>(false) //block interface on call 
+    const [option, setOption] = useState<string>("")
 
     useEffect(() => 
     {
@@ -37,21 +40,24 @@ const Dash : React.FC = () =>
 
         storage.collection(auth.currentUser!.uid).doc("car1").get().then((doc : firebase.firestore.DocumentSnapshot) =>
         {
-            if(!doc.exists) setDisplay(true)
+            if(!doc.exists)
+            {
+                setDisplay(true)
+                //set the timestamp things here
+            }
             else
             {
                 storage.collection(auth.currentUser!.uid).onSnapshot((snap : firebase.firestore.QuerySnapshot) => 
                 {
-                    setCars(snap.docs.map((car :firebase.firestore.DocumentData) => 
+                    setCars( snap.docs.map((car :firebase.firestore.DocumentData) => 
                     (
-                        {...car.data(), docName: car.id }
+                        !car.data().lastCall ? {...car.data(), docName: car.id } : null
                     )))
             
                 })
+                
             }
         })
-
-        console.log(auth.currentUser?.email)
         
     }, [display])
 
@@ -60,6 +66,22 @@ const Dash : React.FC = () =>
         if(window.innerWidth < 400) setSignOutPad({ paddingLeft: window.innerWidth-100 })
         setCarSel("")
         setMode("")
+
+        //if timestamp is today then dont allow user to make calls
+        storage.collection(auth.currentUser!.uid).doc("timestamp").get().then((doc : firebase.firestore.DocumentSnapshot) =>
+        {
+            if(doc)
+            {
+                const timestamp : Date = doc.data().lastCall
+                const currDate : Date = new Date()
+                // console.log(timestamp.getMonth())
+                if(currDate.getMonth() === timestamp.getMonth() && currDate.getDate() === timestamp.getDate())
+                {
+                    console.log("ayo same")
+                    setCallBlock(true)
+                }
+            }
+        })
     }, [])
 
     useEffect(() =>
@@ -73,26 +95,19 @@ const Dash : React.FC = () =>
             }
             else if(mode === "DELETE")
             {
-                handleShow()
+                handleShowDelete()
             }
+            else if(mode === "CALL")
+            {
+                //call twillo thing
+                //make sure to update the timestamp when called 
 
-            //rest
-            // setCarSel("")
-            // setMode("")
+            }
         }
 
     }, [mode, carSel])
 
-    const signOut = () =>
-    {
-        auth.signOut().then(() => 
-        {
-            history.push("/login")
-        }).catch((error) => 
-        {
-            console.log("cant sign out bro")
-        });
-    }
+    const signOut = () => auth.signOut().then(() =>  history.push("/login") ).catch((error) => console.log("cant sign out bro")); 
 
     const deleteDoc = () =>
     {
@@ -103,8 +118,10 @@ const Dash : React.FC = () =>
         {
             console.log(e.message)
         })
+
         setCarSel("")
         setMode("")
+        setOption("")
     }
 
     const resetVals = () =>
@@ -114,7 +131,7 @@ const Dash : React.FC = () =>
         setMode("")
     }
 
-    const handleClose = () => 
+    const handleCloseDelete = () => 
     {
         setDelConf(false);
         setCarSel("")
@@ -122,7 +139,7 @@ const Dash : React.FC = () =>
     }
 
     const _toggleDisplay = () => setDisplay(!display)
-    const handleShow = () => setDelConf(true);
+    const handleShowDelete = () => setDelConf(true);
 
     return (
         <>
@@ -131,23 +148,35 @@ const Dash : React.FC = () =>
                 <Button variant="primary" type='submit' className='mt-3' onClick={signOut}>Sign Out</Button>
             </div>
 
-            { carSel && <Modal show={delConf} onHide={handleClose} backdrop="static" keyboard={false}>
+            { carSel && <Modal show={delConf} onHide={handleCloseDelete} backdrop="static" keyboard={false}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirmation</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>Are you sure you want to delete the { (JSON.parse(carSel).color).toUpperCase() } { (JSON.parse(carSel).model).toUpperCase() }? <span className="text-muted"><br/>Can always be added again.</span></Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}> No </Button>
+                <Button variant="secondary" onClick={handleCloseDelete}> No </Button>
                 <Button variant="primary" onClick={ deleteDoc }>Yes</Button>
                 </Modal.Footer>
             </Modal> }
 
+            <Modal show={delConf} onHide={handleCloseDelete} backdrop="static" size="lg" keyboard={false}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmation</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>AYO.</Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseDelete}> No </Button>
+                <Button variant="primary" onClick={ deleteDoc }>Yes</Button>
+                </Modal.Footer>
+            </Modal>
+
             <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "90vh"}}>        {/*watch out for minHeight*/}
-                {cars.length > 0 && !display && < Cars cars = { cars } setMode={ setMode } setCarSel = { setCarSel } />} 
+                {cars.length > 0 && !display && !callBlock  && < Cars option = { option } setOption = { setOption} cars = { cars } setMode={ setMode } setCarSel = { setCarSel } />} 
+                {callBlock && <h1 className='text-center'>You already made a call for tonight.<br/>You can make another tomorrow.</h1>}
 
                 {/* <h2 className='mb-1 text-center'>Cars</h2> */}
 
-                { !display && <div className='mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Want to add a Car?</div> }
+                { !display && !callBlock && <div className='mt-2' onClick={_toggleDisplay} style={{cursor:"pointer"}}>Want to add a Car?</div> }
                 { display && <Card style={{minWidth: window.innerWidth/2}}>
 
                     <Card.Body className='align-self-center' >
@@ -156,11 +185,10 @@ const Dash : React.FC = () =>
                             {mode === "" && <h2 className='text-center mb-4'>Add Car</h2>}
                             {mode === "EDIT" && <h2 className='text-center mb-4'>Update Car</h2>}
                             
-                            < AddCar carSel = { carSel } toggleDisplay={ _toggleDisplay } mode={ mode } />
+                            {!callBlock && < AddCar cars = { cars }carSel = { carSel } toggleDisplay={ _toggleDisplay } mode={ mode } /> }
 
                             
-
-                        {cars.length > 0 && <div className='text-center mt-2' onClick={ resetVals } style={{cursor:"pointer"}}>Cancel</div>}
+                        <div className='text-center mt-2' onClick={ resetVals } style={{cursor:"pointer"}}>Cancel</div>
 
                         </div>
                     </Card.Body>

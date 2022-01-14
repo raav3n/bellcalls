@@ -3,11 +3,12 @@ import storage, { auth } from "./firebase"
 import { Form, Button } from "react-bootstrap"
 import firebase from "firebase"
 
+import { IState as IProps, IMode} from "./dash"
+interface IcarSEl { carSel : string}
 export interface ItoggleDis { toggleDisplay : () => void }
 export interface Imode { mode : string }
-interface IcarSEl { carSel : string}
 
-const AddCar : React.FC<IcarSEl & ItoggleDis & Imode > = ({ carSel , toggleDisplay, mode }) =>
+const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSel , toggleDisplay, mode }) =>
 {
     const [loading, setLoading] = useState<boolean>(false)
     // const [editMode, setEditMode] = useState<boolean>(false)
@@ -22,12 +23,15 @@ const AddCar : React.FC<IcarSEl & ItoggleDis & Imode > = ({ carSel , toggleDispl
 
         if( inputModel.current != null && inputColor.current != null && inputPlate.current != null)
         {
-            // const docnum : string = "car"+(cars.length+1).toString()
+            const called : number =  mode === "EDIT" ? JSON.parse(carSel).calledAlready : 2
+            const docnum : string = "car"+(cars.length).toString()
 
-            storage.collection(auth.currentUser!.uid).doc(document).set({
+            storage.collection(auth.currentUser!.uid).doc(document ? document : docnum).set({
                 color : inputColor.current.value,
                 model : inputModel.current.value,
-                plate : inputPlate.current.value
+                plate : inputPlate.current.value,
+                calledAlready : called
+                
             }).catch((e : firebase.FirebaseError) => 
             {
                 console.log(e.message)

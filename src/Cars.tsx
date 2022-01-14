@@ -1,34 +1,35 @@
 import React, { useEffect, useState  } from 'react'
 import { IState as IProps, IMode} from "./dash"
-import { Card, ListGroup, Alert, Button, InputGroup, DropdownButton, Dropdown } from "react-bootstrap" 
-// import { ItoggleDis } from './AddCar'
+import { Card, ListGroup, Alert, Button, InputGroup, DropdownButton, Dropdown, Row, Col } from "react-bootstrap" 
 import { AccordionEventKey } from 'react-bootstrap/esm/AccordionContext'
 
 interface IsetCarSel { setCarSel : React.Dispatch<React.SetStateAction<string>> }
+interface Ioption { option : string, setOption :React.Dispatch<React.SetStateAction<string>> }
 
-const Cars : React.FC<IProps & IMode & IsetCarSel> = ({ cars, setMode, setCarSel }) =>
+const Cars : React.FC<Ioption & IProps & IMode & IsetCarSel> = ({ option, setOption, cars, setMode, setCarSel, }) =>
 {
     const carList = () : JSX.Element[] => 
     {
         let count = 1
-        return cars.map((c) => 
+        
+        // console.log(cars)
+        // delete cars[null]
+
+        return cars.filter(n => n).map((c) => 
         {
             return ( 
-                <React.Fragment key={ c.docName! }>
-                    <label> Car {count++} </label> <ListGroup.Item  as="li" className='mb-1'action href={ JSON.stringify(c)} id={ c.docName! }> {c.color.toUpperCase()} {c.model.toUpperCase()}, Plate : {c.plate} </ListGroup.Item>
-                </React.Fragment>
+                <div key={ c.docName! } className='d-flex flex-row' style={{whiteSpace:"nowrap"}}>
+                    <ListGroup.Item  as="li" className='mb-1'action href={ JSON.stringify(c)} id={ c.docName! }> {c.color.toUpperCase()} {c.model.toUpperCase()}, Plate:{c.plate.toUpperCase()} </ListGroup.Item> <label className='ps-4'> { c.calledAlready }</label>
+                </div>
             )
         })
     }    
 
     const [width, setWidth] = useState<React.CSSProperties>({ width : window.innerWidth/2 })
-    const [option, setOption] = useState<string>("")
 
 
-    useEffect(() => {
-        if(window.innerWidth < 500) setWidth({ width: window.innerWidth-100 })
-        // console.log(cars)
-    }, []) 
+    useEffect(() => { if(window.innerWidth < 500) setWidth({ width: window.innerWidth-50 }) }, [])
+    // useEffect(() => {if( setCarSel && optionSelect ) setOption("")}, [setCarSel, optionSelect]) 
 
     const optionSelect = (e ?: AccordionEventKey) =>
     {
@@ -45,7 +46,8 @@ const Cars : React.FC<IProps & IMode & IsetCarSel> = ({ cars, setMode, setCarSel
         if(e)
         {
             // console.log(e)    
-            setCarSel(e.toString())      
+            setCarSel(e.toString())    
+            setOption("")  
         }
     }
  
@@ -68,6 +70,10 @@ const Cars : React.FC<IProps & IMode & IsetCarSel> = ({ cars, setMode, setCarSel
                     <div style={{ cursor:"pointer" , userSelect:"none"}}>
 
                         <ListGroup as="ul" className='d-flex flex-column' onSelect={ carSelect }>
+                            <Row className="mb-2">
+                                <Col>Cars</Col>
+                                <Col xs={3} style={{whiteSpace:"nowrap"}}>Calls Left</Col>
+                            </Row>
                             { carList() }
                         </ListGroup>
 

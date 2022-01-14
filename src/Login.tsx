@@ -43,6 +43,7 @@ const Login : React.FC = () =>
     const [display, setDisplay] = useState<string>("password")
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string>("")
+    const [loggedIn, setLoggedIn] = useState<boolean>(true)
 
     const showHide = () =>
     {
@@ -52,19 +53,22 @@ const Login : React.FC = () =>
 
     useEffect(() =>
     {
-        auth.onAuthStateChanged(user =>
+        auth.onAuthStateChanged((user) =>
         {
             if(user) history.push("/")
-        })
+            else 
+            {
+                setLoggedIn(false)
+                email_in.current!.focus()
+            }
+        }) 
 
-
-        email_in.current!.focus()
     }, [])
     
     return (
     <>
         <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}>
-            <Card style={{width:'350px', minHeight:"350px"}} >
+            {!loggedIn && <Card style={{width:'350px', minHeight:"350px"}} >
 
                 <Card.Body className='m-auto w-100'>
                     <h2 className='text-center mb-4'>Log In</h2>
@@ -86,7 +90,7 @@ const Login : React.FC = () =>
 
                 </Card.Body>
 
-            </Card>
+            </Card> }
 
             <div className='mt-3' style={{userSelect:"none", cursor:"pointer"}}><Link to="/signup" style={{ textDecoration: 'none' }}> New here? Sign up </Link></div>
         </div>

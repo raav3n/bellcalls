@@ -50,7 +50,7 @@ const Signup : React.FC = () =>
                 {
                     user = userCreds
 
-                    //setup user
+                    //make doc with timestamp to yesterday
 
                     history.push("/")
 

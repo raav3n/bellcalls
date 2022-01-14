@@ -3,7 +3,7 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 
 ### Updates
 First Typescript and React project </br>
-Can now edit and delete cars but need to implement tracking in database. Play around with UI too
+Work on timestamps and tracking 
 
 ### Next steps
 * UI Changes
