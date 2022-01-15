@@ -50,7 +50,7 @@ const Signup : React.FC = () =>
                 {
                     user = userCreds
 
-                    //make doc with timestamp to yesterday
+                    storage.collection(auth.currentUser!.uid).doc("timestamp").set( { lastCall : new Date(new Date().setDate(new Date().getDate()-1)) })
 
                     history.push("/")
 

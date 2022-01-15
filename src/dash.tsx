@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Cars  from "./Cars"
 import storage  from "./firebase"
 import { auth } from "./firebase"
-import firebase from 'firebase/app';
-import { Card, Button, Modal} from 'react-bootstrap';
+import firebase from 'firebase/app'
+import { Card, Button, Modal} from 'react-bootstrap'
 import { useHistory } from "react-router-dom"
 import AddCar from "./AddCar"
 
@@ -38,7 +38,9 @@ const Dash : React.FC = () =>
     {
         if(!auth.currentUser?.uid) history.push("/login")
 
-        storage.collection(auth.currentUser!.uid).doc("car1").get().then((doc : firebase.firestore.DocumentSnapshot) =>
+        console.log(auth.currentUser?.email)
+
+        storage.collection(auth.currentUser!.uid).doc("car0").get().then((doc : firebase.firestore.DocumentSnapshot) =>
         {
             if(!doc.exists)
             {
@@ -66,6 +68,9 @@ const Dash : React.FC = () =>
         if(window.innerWidth < 400) setSignOutPad({ paddingLeft: window.innerWidth-100 })
         setCarSel("")
         setMode("")
+        setOption("")
+
+        console.log("mount")
 
         //if timestamp is today then dont allow user to make calls
         storage.collection(auth.currentUser!.uid).doc("timestamp").get().then((doc : firebase.firestore.DocumentSnapshot) =>
@@ -74,11 +79,22 @@ const Dash : React.FC = () =>
             {
                 const timestamp : Date = doc.data().lastCall
                 const currDate : Date = new Date()
-                // console.log(timestamp.getMonth())
+
                 if(currDate.getMonth() === timestamp.getMonth() && currDate.getDate() === timestamp.getDate())
                 {
                     console.log("ayo same")
                     setCallBlock(true)
+                }
+
+                if(timestamp.getMonth() != currDate.getMonth())
+                {
+                    storage.collection(auth.currentUser!.uid).get().then((snap : firebase.firestore.QuerySnapshot) =>
+                    {
+                        snap.forEach( (doc : firebase.firestore.DocumentSnapshot) =>
+                        {
+                            if (doc.data().calledAlready) doc.ref.update({calledAlready : 0})
+                        })
+                    })
                 }
             }
         })
@@ -99,9 +115,20 @@ const Dash : React.FC = () =>
             }
             else if(mode === "CALL")
             {
-                //call twillo thing
-                //make sure to update the timestamp when called 
+                //check if avial
+                if(JSON.parse(carSel).calledAlready ==2 )
+                {
+                    setOption("You can no longer call for this car this month. Try another.")
+                }
+                else
+                {
+                    //call twillo thing
+                    //make sure to update the timestamp when called 
+                    storage.collection(auth.currentUser!.uid).doc("timestamp").update({ lastCall : firebase.firestore.FieldValue.serverTimestamp() })
+                    storage.collection(auth.currentUser!.uid).doc(JSON.parse(carSel).docName).update({ calledAlready : JSON.parse(carSel).calledAlready + 1 })
 
+                    setCallBlock(true)
+                }
             }
         }
 
@@ -129,6 +156,7 @@ const Dash : React.FC = () =>
         _toggleDisplay()
         setCarSel("")
         setMode("")
+        setOption("")
     }
 
     const handleCloseDelete = () => 
@@ -159,17 +187,6 @@ const Dash : React.FC = () =>
                 </Modal.Footer>
             </Modal> }
 
-            <Modal show={delConf} onHide={handleCloseDelete} backdrop="static" size="lg" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirmation</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>AYO.</Modal.Body>
-                <Modal.Footer>
-                <Button variant="secondary" onClick={handleCloseDelete}> No </Button>
-                <Button variant="primary" onClick={ deleteDoc }>Yes</Button>
-                </Modal.Footer>
-            </Modal>
-
             <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "90vh"}}>        {/*watch out for minHeight*/}
                 {cars.length > 0 && !display && !callBlock  && < Cars option = { option } setOption = { setOption} cars = { cars } setMode={ setMode } setCarSel = { setCarSel } />} 
                 {callBlock && <h1 className='text-center'>You already made a call for tonight.<br/>You can make another tomorrow.</h1>}
@@ -185,8 +202,9 @@ const Dash : React.FC = () =>
                             {mode === "" && <h2 className='text-center mb-4'>Add Car</h2>}
                             {mode === "EDIT" && <h2 className='text-center mb-4'>Update Car</h2>}
                             
-                            {!callBlock && < AddCar cars = { cars }carSel = { carSel } toggleDisplay={ _toggleDisplay } mode={ mode } /> }
+                            {!callBlock && < AddCar cars = { cars } carSel = { carSel } toggleDisplay={ _toggleDisplay } mode={ mode } /> }
 
+                            {/* < Twillo carSel ={ carSel} setOption = { setOption } setMode = { setMode }  */}
                             
                         <div className='text-center mt-2' onClick={ resetVals } style={{cursor:"pointer"}}>Cancel</div>
 

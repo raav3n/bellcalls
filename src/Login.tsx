@@ -56,13 +56,8 @@ const Login : React.FC = () =>
         auth.onAuthStateChanged((user) =>
         {
             if(user) history.push("/")
-            else 
-            {
-                setLoggedIn(false)
-                email_in.current!.focus()
-            }
+            else setLoggedIn(false)
         }) 
-
     }, [])
     
     return (
@@ -89,6 +84,8 @@ const Login : React.FC = () =>
                     </Form>
 
                 </Card.Body>
+
+                {/* {email_in.current!.focus()} */}
 
             </Card> }
 

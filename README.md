@@ -3,11 +3,10 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 
 ### Updates
 First Typescript and React project </br>
-Work on timestamps and tracking 
+Timestamp, tracking are good. Time to work on with Twillo. Also a little buggy. need to make sure to refresh mode and car selsected
 
 ### Next steps
 * UI Changes
 * Make logo (top left font is temp right now)
 * Implement Twillio for automated phone calls 
-* Trackers for car stays per night (as well as be able to reset)
 * Reset password

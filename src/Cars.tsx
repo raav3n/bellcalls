@@ -10,13 +10,13 @@ const Cars : React.FC<Ioption & IProps & IMode & IsetCarSel> = ({ option, setOpt
 {
     const carList = () : JSX.Element[] => 
     {
-        let count = 1
-        
+       
         // console.log(cars)
         // delete cars[null]
 
-        return cars.filter(n => n).map((c) => 
+        return cars.filter(Boolean).map((c) => 
         {
+            // {console.log(cars)}
             return ( 
                 <div key={ c.docName! } className='d-flex flex-row' style={{whiteSpace:"nowrap"}}>
                     <ListGroup.Item  as="li" className='mb-1'action href={ JSON.stringify(c)} id={ c.docName! }> {c.color.toUpperCase()} {c.model.toUpperCase()}, Plate:{c.plate.toUpperCase()} </ListGroup.Item> <label className='ps-4'> { c.calledAlready }</label>
@@ -54,9 +54,10 @@ const Cars : React.FC<Ioption & IProps & IMode & IsetCarSel> = ({ option, setOpt
     return ( 
         <>
             <Card style={{...width, maxHeight: window.innerHeight/2}} > 
-                <Card.Body className='m-auto'>  
 
-                    {option && <Alert variant={ option.split(" ")[option.split(" ").length-1].toLowerCase() === "delete" ? "danger" : "secondary"} className='text-center'> { option } </Alert>}
+                {option && <Alert variant={ option.split(" ")[option.split(" ").length-1].toLowerCase() === "delete" ? "danger" : "secondary"} className='text-center'> { option } </Alert>}
+
+                <Card.Body className='m-auto'>  
 
                     <InputGroup className='mt-2 mb-2 m-auto'>
                         <DropdownButton variant='outline-secondary' title="Options" id="options_dropdown"  onSelect={ optionSelect }>

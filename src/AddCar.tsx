@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useRef, useState } from "react"
 import storage, { auth } from "./firebase"
 import { Form, Button } from "react-bootstrap"
 import firebase from "firebase"
 
-import { IState as IProps, IMode} from "./dash"
+import { IState as IProps} from "./dash"
 interface IcarSEl { carSel : string}
 export interface ItoggleDis { toggleDisplay : () => void }
 export interface Imode { mode : string }
@@ -11,7 +11,6 @@ export interface Imode { mode : string }
 const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSel , toggleDisplay, mode }) =>
 {
     const [loading, setLoading] = useState<boolean>(false)
-    // const [editMode, setEditMode] = useState<boolean>(false)
     const inputColor = useRef<HTMLInputElement>(null)
     const inputModel = useRef<HTMLInputElement>(null)
     const inputPlate = useRef<HTMLInputElement>(null)
@@ -23,7 +22,7 @@ const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSe
 
         if( inputModel.current != null && inputColor.current != null && inputPlate.current != null)
         {
-            const called : number =  mode === "EDIT" ? JSON.parse(carSel).calledAlready : 2
+            const called : number =  mode === "EDIT" ? JSON.parse(carSel).calledAlready : 0
             const docnum : string = "car"+(cars.length).toString()
 
             storage.collection(auth.currentUser!.uid).doc(document ? document : docnum).set({
