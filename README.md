@@ -3,7 +3,7 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 
 ### Updates
 First Typescript and React project </br>
-Timestamp, tracking are good. Time to work on with Twillo. Also a little buggy. need to make sure to refresh mode and car selsected
+Timestamp, tracking are good. Time to work with Twillo and get the voicemails going. Also a little buggy, need to make sure to clear the mode and car selected after one action is complete (edit, delete).
 
 ### Next steps
 * UI Changes
