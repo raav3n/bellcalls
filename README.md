@@ -5,6 +5,8 @@ Once complete, will allow residents from Bell, CA to automate calls to leave the
 Branch off master that has node js to support the use of twillio for calls.
 
 ### Next steps
-* Make post for calls only usable by website and no outside enity (may need to do some sort of authentication)
-* handle data from request
 * test and make sure calls are properly made
+* Get user address and pass on post request object
+* clean up react code
+* UI changes
+* Upload on Heroku

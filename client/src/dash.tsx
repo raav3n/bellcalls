@@ -6,7 +6,7 @@ import firebase from 'firebase/app'
 import { Card, Button, Modal} from 'react-bootstrap'
 import { useHistory } from "react-router-dom"
 import AddCar from "./AddCar"
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 export interface IState
 {
@@ -116,26 +116,31 @@ const Dash : React.FC = () =>
             }
             else if(mode === "CALL")
             {
-                // //check if avial
-                // if(JSON.parse(carSel).calledAlready ==2 )
-                // {
-                //     setOption("You can no longer call for this car this month. Try another.")
-                // }
-                // else
-                // {
-                //     //call twillo thing
-                //     //make sure to update the timestamp when called 
-                //     storage.collection(auth.currentUser!.uid).doc("timestamp").update({ lastCall : firebase.firestore.FieldValue.serverTimestamp() })
-                //     storage.collection(auth.currentUser!.uid).doc(JSON.parse(carSel).docName).update({ calledAlready : JSON.parse(carSel).calledAlready + 1 })
-
-                //     setCallBlock(true)
-                // }
-                axios
-                .post('http://localhost:3001/', JSON.parse(carSel))
-                .then(() => console.log('Book Created'))
-                .catch(err => {
-                    console.error(err);
-                });
+                //check if avial
+                if(JSON.parse(carSel).calledAlready ==2 )
+                {
+                    setOption("You can no longer call for this car this month. Try another.")
+                }
+                else
+                {
+                    axios
+                    .post('http://localhost:3001/', { ...JSON.parse(carSel), uid : auth.currentUser!.uid.toString() } )
+                    .then(( res : AxiosResponse ) => 
+                    {
+                        console.log('Attempting to make call')
+                        if(res.status==200)
+                        {
+                            //update timestamp in server and lock user ui
+                            setCallBlock(true)
+                        }
+                        else
+                        {
+                            //error something went wrong, try again later?
+                            setOption("Looks like something went wrong. Maybe try again later.")
+                        }
+                    })
+                    .catch(e => { console.error(e); });
+                }
             }
         }
 
