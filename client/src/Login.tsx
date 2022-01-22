@@ -24,7 +24,7 @@ const Login : React.FC = () =>
         //login
         if(email_in.current != null && pass_in.current != null && !error)
         {
-            auth.signInWithEmailAndPassword(email_in.current.value, pass_in.current.value).then( (userCreds : firebase.auth.UserCredential) => 
+            auth.signInWithEmailAndPassword(email_in.current.value, pass_in.current.value).then( (userCreds : firebase.auth.UserCredential) =>
             {
                 user = userCreds
                 history.push("/")
@@ -55,11 +55,11 @@ const Login : React.FC = () =>
     {
         auth.onAuthStateChanged((user) =>
         {
-            if(user) history.push("/")
+            if(user) history.push("/dash")
             else setLoggedIn(false)
-        }) 
+        })
     }, [])
-    
+
     return (
     <>
         <div className='d-flex align-items-center justify-content-center flex-column' style = {{minHeight: "100vh"}}>
@@ -78,7 +78,7 @@ const Login : React.FC = () =>
                             <Form.Control type={ display } placeholder="Enter password" ref={pass_in} required />
                             <span onClick={ showHide } style={{ cursor: "pointer", userSelect: "none", fontSize: "15px" }}> { display==="text" && <p>HIDE</p> } { display==="password" && <p>SHOW</p> } </span>
                         </Form.Group>
-                        
+
                         <div className="d-flex justify-content-center"><Button disabled={ loading } type="submit" variant="primary" style={{width:"150px"}} >Log in</Button></div>
 
                     </Form>

@@ -14,6 +14,7 @@ const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSe
     const inputColor = useRef<HTMLInputElement>(null)
     const inputModel = useRef<HTMLInputElement>(null)
     const inputPlate = useRef<HTMLInputElement>(null)
+    const inputAddy = useRef<HTMLInputElement>(null)
 
     const carAddUpdate = ( document ?: string ) => ( e : React.FormEvent<HTMLFormElement> ) =>
     {
@@ -30,12 +31,20 @@ const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSe
                 model : inputModel.current.value,
                 plate : inputPlate.current.value,
                 calledAlready : called
-                
-            }).catch((e : firebase.FirebaseError) => 
+
+            }).catch((e : firebase.FirebaseError) =>
             {
                 console.log(e.message)
-                
+
             }).then(() => console.log("done"))
+        }
+
+        if( !mode && inputAddy.current != null )
+        {
+          storage.collection(auth.currentUser!.uid).doc("address").set(
+          {
+            address: inputAddy.current.value
+          })
         }
 
         setLoading(false)
@@ -61,9 +70,14 @@ const AddCar : React.FC<IProps & IcarSEl & ItoggleDis & Imode > = ({cars,  carSe
                 {!mode && <Form.Control type="text" ref={inputPlate} required />}
                 {mode === "EDIT" && <Form.Control type="text" ref={inputPlate} defaultValue={ JSON.parse(carSel).plate} required/>}
             </Form.Group>
+            {!cars && <Form.Group id="Caddy">
+                <Form.Label>Home Address</Form.Label>
+                <Form.Control type="text" ref={inputAddy} required />
+                <Form.Label> <span className="text-muted">required for calling for car(s)</span> </Form.Label>
+            </Form.Group> }
             {!mode && <Button variant="primary" type='submit' disabled={loading} className='w-100 mt-3'>Add Car</Button>}
             {mode === "EDIT" && <Button variant="primary" type='submit' disabled={loading} className='w-100 mt-3'>Update Car</Button>}
-        </Form> 
+        </Form>
 
             {/* {editMode && < EditCar cars = { cars } carUpdate = { carAddUpdate } /> } */}
         </>

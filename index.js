@@ -2,16 +2,16 @@ const path = require('path');
 const express = require("express");
 const cors = require("cors");
 
-//Initialize Firestore 
+//Initialize Firestore
 const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 initializeApp({  credential: cert(path.resolve(__dirname, './bellcalls-key.json')) });
 const db = getFirestore();
 
 //initialize Twilio
-require('dotenv').config({ path: path.resolve(__dirname, './client/.env.local') }); 
-const twilio_sid = process.env.TWILIO_ACCOUNT_SID; 
-const twilio_token = process.env.TWILIO_AUTH_TOKEN; 
+require('dotenv').config({ path: path.resolve(__dirname, './client/.env.local') });
+const twilio_sid = process.env.TWILIO_ACCOUNT_SID;
+const twilio_token = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require("twilio")(twilio_sid, twilio_token);
 
 //PORT used
@@ -35,7 +35,6 @@ app.get("/api", (req, res) => {
 const callBackDomain = process.env.NGROK_URL;
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 const { time } = require('console');
-let message = "";
 
 async function getTimestampValidation(uid)
 {
@@ -44,7 +43,7 @@ async function getTimestampValidation(uid)
   const date = new Date();
 
   if(timestamp.getMonth() == date.getMonth() && timestamp.getDay() == date.getDay()) return false;
-  else return true; 
+  else return true;
 }
 
 async function updateTimestamp(uid, car)
@@ -54,6 +53,13 @@ async function updateTimestamp(uid, car)
 
   const res = await TimestampREF.update({ lastCall : FieldValue.serverTimestamp() });
   const res2 = await CarTrackerREF.update({ calledAlready : FieldValue.increment(1) }); //JSON.parse(carSel).calledAlready + 1
+}
+
+async function getAddress(uid)
+{
+  const addyRef = db.collection(uid).doc("address");
+
+  const addy = await addyRef.get("address")
 }
 
 app.post("/", (req, res) =>
@@ -73,12 +79,12 @@ app.post("/", (req, res) =>
   else
   {
     // twilio.calls.create
-    // ({  
+    // ({
     //   machineDetection: 'DetectMessageEnd',
     //   asyncAmd: true,
     //   asyncAmdStatusCallback: callBackDomain + "/amd-callback",
     //   asyncAmdStatusCallbackMethod: "POST",
-    //   twiml: "<Response><Say>.</Say><Pause length='30'/></Response>", //chnage length bc call takes like 2 minutes
+    //   twiml: "<Response><Say>.</Say><Pause length='30'/></Response>", //little over a minute
     //   to: '+13234949031',
     //   from: process.env.TWILIO_PHONE_NUMBER,
     //   statusCallback: callBackDomain + "/status-callback",
@@ -103,7 +109,7 @@ app.post("/status-callback", function (req, res) {
 app.post("/amd-callback", function (req, res) {
   const response = new VoiceResponse();
 
-  if (req.body.AnsweredBy === 'human') 
+  if (req.body.AnsweredBy === 'human')
   {
     // When a human answers the call
     console.log("Call picked up by human")
@@ -112,7 +118,7 @@ app.post("/amd-callback", function (req, res) {
       .update({twiml: `<Response><Pause length="2"/><Say>Answered by hooman</Say></Response>`})
       .catch(err => console.log(err));
   }
-  else  
+  else
   {
     // When an answering machine answers the call
     console.log("Call picked up by machine")
