@@ -20,7 +20,7 @@ const Signup : React.FC = () =>
         const val = display === "text" ? "password" : "text"
         const val2 = display2 === "text" ? "password" : "text"
 
-        if(id === 1) setDisplay(()=>val)  
+        if(id === 1) setDisplay(()=>val)
         else setDisplay2(()=>val2)
     }
 
@@ -32,7 +32,7 @@ const Signup : React.FC = () =>
     {
         e.preventDefault()
 
-        const emailReg = /\S+@\S+\.\S+/ 
+        const emailReg = /\S+@\S+\.\S+/
         const passReg = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/
 
         if(email_in.current != null && pass_conf_in.current != null && pass_in.current != null)
@@ -70,7 +70,7 @@ const Signup : React.FC = () =>
     {
         auth.onAuthStateChanged(user =>
         {
-            if(user) history.push("/")
+            if(user) history.push("/dash")
         })
 
         email_in.current!.focus()
@@ -111,7 +111,7 @@ const Signup : React.FC = () =>
                                     <li>At least one symbol</li>
                                 </ul>
                             </div>
-                            
+
                             <div className="d-flex justify-content-center"><Button disabled={ loading } type="submit" variant="primary" style={{width:"150px"}} >Submit</Button></div>
 
                         </Form>
