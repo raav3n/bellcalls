@@ -24,6 +24,8 @@ export interface IMode { setMode : React.Dispatch<React.SetStateAction<string>>}
 
 const Dash : React.FC = () =>
 {
+    document.title = "BellCalls | Dash";
+
     const history = useHistory()
 
     const [cars, setCars] = useState<IState["cars"]>([])

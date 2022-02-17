@@ -7,6 +7,8 @@ import { Link, useHistory } from "react-router-dom"
 
 const Signup : React.FC = () =>
 {
+    document.title = "BellCalls | Signup";
+
     let user : firebase.auth.UserCredential
     const history = useHistory()
 
